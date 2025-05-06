@@ -1,0 +1,49 @@
+# Using this public sheets to create a database object that can be queried using SQL
+
+# Setting up sqlite3 and cursor, which is used to store SQL outputs
+conn = sqlite3.connect('test.db')
+cursor = conn.cursor()
+try:
+  conn.execute('''
+    drop table fueluse; ''')
+except:
+  pass
+
+# This is mapping variable types in Python to variable type in SQL for columns, and storing it as a list
+columns = fueluse.columns.tolist()
+dtypes = fueluse.dtypes.map({
+    'object': 'TEXT',
+    'int64': 'INTEGER',
+    'float64': 'REAL',
+    'bool': 'INTEGER'
+}).tolist()
+
+# Blueprint for table creation
+create_table_sql = f"""
+CREATE TABLE IF NOT EXISTS fueluse (
+    {', '.join([f'"{col}" {dtype}' for col, dtype in zip(columns, dtypes)])}
+)
+"""
+
+# Table creation
+cursor.execute(create_table_sql)
+
+# Insert data row by row
+for row in fueluse.itertuples(index=False):
+    placeholders = ', '.join(['?']*len(columns))
+    insert_sql = f"""
+        INSERT INTO fueluse ({', '.join(columns)})
+        VALUES ({placeholders})
+    """
+    cursor.execute(insert_sql, tuple(row))
+
+# Commit and verify
+conn.commit()
+print("Inserted rows:", cursor.execute("SELECT COUNT(*) FROM fueluse").fetchone()[0])
+
+# Reading the database
+verify_df = pd.read_sql("SELECT * FROM fueluse", conn)
+print(verify_df)
+
+# Closing the SQL session
+conn.close()
