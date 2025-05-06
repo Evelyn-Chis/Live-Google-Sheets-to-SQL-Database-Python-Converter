@@ -1,0 +1,12 @@
+# Wrangles the data that will be used in this example
+
+import pandas as pd
+
+# Using the share link for a publically available google sheets, it can be turned into a dataframe
+url = 'https://docs.google.com/spreadsheets/d/1D9E3_N9dHXf5E9zfbYbirlEJCPT82oPXndTuUuSCkGU/edit?usp=sharing' # This is the link under the "share" option, not in the search bar
+csv_export_url = url.replace('/edit?usp=sharing', '/export?format=csv') # This turns the link into a CSV
+fueluse = pd.read_csv(csv_export_url)
+
+fueluse
+
+# With testing, I can confirm that rerunning this code after updating the google sheets shows changes
