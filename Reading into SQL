@@ -18,17 +18,17 @@ dtypes = fueluse.dtypes.map({
     'bool': 'INTEGER'
 }).tolist()
 
-# Blueprint for table creation
+# The "blueprint" for table creation
 create_table_sql = f"""
 CREATE TABLE IF NOT EXISTS fueluse (
     {', '.join([f'"{col}" {dtype}' for col, dtype in zip(columns, dtypes)])}
 )
 """
 
-# Table creation
+# Table creation in sql
 cursor.execute(create_table_sql)
 
-# Insert data row by row
+# Insert data row by row (iteration)
 for row in fueluse.itertuples(index=False):
     placeholders = ', '.join(['?']*len(columns))
     insert_sql = f"""
